@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+.idea
+public/uploads/*
+!*.gitkeep
+public/dist/
+haters/
+config-development.js
+config-production.js

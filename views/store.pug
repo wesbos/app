@@ -1,0 +1,38 @@
+extends layout
+
+//- include mixins
+include mixins/_storeCard
+include mixins/_reviewForm
+include mixins/_review
+
+block content
+  .single
+    .single__hero
+      img.single__image(src=`/uploads/${store.photo || 'store.png'}`)
+      - const longestLength = store.name.split(' ').sort(x => x.length).pop().length
+      - const lengthClass = longestLength >= 10 ? 'title--long' : 'title--short';
+      h2.title.title--single(class=lengthClass)
+        a(href=`/stores/${store.slug}`) #{store.name}
+
+  .single__details.inner
+    img.single__map(src=h.staticMap(store.location.coordinates))
+    p.single__location= store.location.address
+    p= store.description
+
+    if store.tags
+      ul.tags
+        each tag in store.tags
+          li.tag
+            a.tag__link(href=`/tags/${tag}`)
+              span.tag__text #{tag}
+
+      if user
+        +reviewForm(store)
+      else
+        p ♥️ Love this place? <a href="/login">Login</a> to leave a review
+
+      if store.reviews
+        .reviews
+          each review in store.reviews
+            .review
+              +review(review)

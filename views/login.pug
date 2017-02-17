@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  include mixins/_login.pug
+  include mixins/_forgot.pug
+  .inner
+    +loginForm()
+    +forgotForm()
