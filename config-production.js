@@ -6,7 +6,7 @@ module.exports = {
   secret: 'snickers',
   siteName: `Now That's Delicious!`,
   mapKey: 'AIzaSyAddwFzEu83xzv_3kQjwLOrK3d35bmiOKg',
-  menu: [
+  menu:  [
     { slug: '/stores', title: 'Stores', icon: 'store', },
     { slug: '/tags', title: 'Tags', icon: 'tag', },
     { slug: '/top', title: 'Top', icon: 'top', },
