@@ -5,6 +5,7 @@ node_modules/
 public/uploads/*
 !*.gitkeep
 haters/
+variables.env
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
