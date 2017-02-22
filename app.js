@@ -20,7 +20,7 @@ const app = express();
 mongoose.connect(config.database);
 // If the connection is bad, let the dev know
 mongoose.connection.on('error', (err) => {
-  console.error(`🙅 🚫 → ${err.message}`);
+  console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
 });
 
 mongoose.Promise = global.Promise; // only once because it's a singleton

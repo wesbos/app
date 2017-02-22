@@ -4,7 +4,9 @@ node_modules/
 .idea
 public/uploads/*
 !*.gitkeep
-public/dist/
 haters/
-config-development.js
-config-production.js
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
