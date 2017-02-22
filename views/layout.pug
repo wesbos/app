@@ -21,10 +21,10 @@ html
           .nav__section.nav__section--user
             if user
               li.nav__item: a.nav__link(href="/hearts", class=(currentPath.startsWith('/hearts') ? 'nav__link--active' : ''))
-                +icon('heart')
+                != h.icon('heart')
                 span.heart-count #{user.hearts.length}
               li.nav__item: a.nav__link(href="/logout", class=(currentPath.startsWith('/logout') ? 'nav__link--active' : ''))
-                +icon('logout')
+                != h.icon('logout')
                 span Logout
               li.nav__item: a.nav__link(href="/account", class=(currentPath.startsWith('/account') ? 'nav__link--active' : ''))
                 img.avatar(src=user.gravatar)

@@ -41,44 +41,43 @@ exports.addStore = (req, res) => {
   res.render('editStore', { title: 'Add Store' });
 };
 
-exports.getStores = (req, res, next) => {
-  // req.flash('success', 'This is a Success Message');
-  // req.flash('error', 'Something went really wrong!');
-  // req.flash('info', 'Dogs are neat');
-  const page = req.params.page || 1;
-  const limit = 6;
-  const skip = (page * limit) - limit;
+exports.getStores = async (req, res, next) => {
+  try {
+    const page = req.params.page || 1;
+    const limit = 6;
+    const skip = (page * limit) - limit;
 
-  const storePromise = Store
-    .find()
-    .skip(skip)
-    .limit(limit)
-    .populate('author reviews')
-    .sort({ created: 'desc' });
+    const storePromise = Store
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .populate('author reviews')
+      .sort({ created: 'desc' });
 
-  const countPromise = Store.count();
-  Promise.all([storePromise, countPromise])
-    .then(([stores, count]) => {
-      const pages = Math.ceil(count / limit);
-      console.log(res.locals);
-      res.render('stores', { stores, title: 'Latest Stores', count, page, pages });
-    })
-    .catch(next);
+    const countPromise = Store.count();
+    const [stores, count] = await Promise.all([storePromise, countPromise]);
+    const pages = Math.ceil(count / limit);
+    res.render('stores', { stores, title: 'Latest Stores', count, page, pages });
+  } catch(err) {
+    console.log('eRRRRR!!');
+    console.log(err);
+    next(err);
+  }
 };
 
 
-exports.getStoreBySlug = (req, res, next) => {
-  Store
-    .findOne({ slug: req.params.slug })
-    .populate('reviews author')
-    .then(store => {
-      if (!store) {
-        next(); // not found
-        return;
-      }
-      res.render('store', { store, title: store.name });
-    })
-    .catch(next);
+exports.getStoreBySlug = async (req, res, next) => {
+  try {
+    const store = await Store.findOne({ slug: req.params.slug }).populate('reviews author');
+    if (!store) {
+      next(); // not found
+      return;
+    }
+    res.render('store', { store, title: store.name });
+  } catch(err) {
+    next(err);
+  }
+
 };
 
 function isOwner(store, user) {
@@ -86,45 +85,42 @@ function isOwner(store, user) {
     if (store.author.equals(user._id)) {
       resolve(store); // good
     } else {
-      reject('You must down that store to edit it!');
+      reject({message: 'You must own that store to edit it!'});
     }
   });
 }
 
-exports.editStore = (req, res, next) => {
-  console.log(`Going to edit ${req.params.id}`);
-  Store
-    .findOne({ _id: req.params.id })
-    .then(store => isOwner(store, req.user))
-    .then(store => res.render('editStore', { store, title: 'Edit Store' }))
-    .catch(next);
+exports.editStore = async (req, res, next) => {
+  try {
+    const store = await Store.findOne({ _id: req.params.id });
+    await isOwner(store, req.user);
+    res.render('editStore', { store, title: 'Edit Store' });
+  } catch(err) {
+    next(err);
+  }
 };
 
-exports.createStore = (req, res, next) => {
-  // check for file validation error
-  req.body.author = req.user._id;
-  req.body.photo = req.file && req.file.filename;
-
-  const myStore = new Store(req.body);
-
-  myStore
-    .save()
-    .then((store) => {
-      req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
-      res.redirect(`/stores/${store.slug}`);
-    })
-    .catch(err => {
-      if (err.errors) {
-        Object.keys(err.errors).forEach(key => req.flash('error', err.errors[key].message));
-        res.render('editStore', { store: myStore, flashes: req.flash() });
-        return;
-      }
-      // otherwise pass it on
-      next(err);
-    });
+exports.createStore = async (req, res, next) => {
+  try {
+    // TODO: check for file validation error
+    req.body.author = req.user._id;
+    req.body.photo = req.file && req.file.filename;
+    const store = await (new Store(req.body)).save();
+    req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
+    res.redirect(`/stores/${store.slug}`);
+  } catch(err) {
+    if (err.errors) {
+      Object.keys(err.errors).forEach(key => req.flash('error', err.errors[key].message));
+      res.render('editStore', { store: myStore, flashes: req.flash() });
+      return;
+    }
+    // otherwise pass it on
+    next(err);
+  }
 };
 
 exports.updateStore = (req, res) => {
+
   if (req.file && req.file.filename) {
     req.body.photo = req.file.filename;
   }

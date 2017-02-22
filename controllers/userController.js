@@ -51,6 +51,11 @@ exports.register = (req, res, next) => {
       });
     })
     .catch((err) => {
+      req.flash('error', err.message);
+      res.render('register', { title: 'Register', flashes: req.flash(), body: req.body });
+      return;
+      // TODO Check
+
       // loop over all possible validation errors and re-render the register page
       Object.keys(err.errors).forEach(key => {
         req.flash('error', err.errors[key].message);

@@ -73,6 +73,7 @@ app.use((req, res, next) => {
 if (app.get('env') === 'development') {
   // if we don't handle an error in our controller, it will be passed along to this.
   app.use((err, req, res, next) => {
+    err.stack = err.stack || '';
     const errorDetails = {
       message: err.message,
       error: err,

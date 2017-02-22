@@ -1,7 +1,10 @@
 {
-  "name": "codebase",
+  "name": "dang-thats-delicious",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": ">= 7.6.0"
+  },
   "scripts": {
     "start": "node ./bin/www.js",
     "dev": "concurrently 'nodemon ./bin/www.js --ignore public/' 'npm run assets' --names '💻,📦' --prefix name --kill-others",
