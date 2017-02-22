@@ -41,7 +41,8 @@
     "pug": "^2.0.0-beta6",
     "slug": "^0.9.1",
     "uuid": "^3.0.1",
-    "validator": "^6.2.1"
+    "validator": "^6.2.1",
+    "pug": "^2.0.0-beta6"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
@@ -53,7 +54,6 @@
     "extract-text-webpack-plugin": "^2.0.0-rc.3",
     "node-sass": "^4.5.0",
     "postcss-loader": "^1.2.2",
-    "pug": "^2.0.0-beta6",
     "sass-loader": "^5.0.1",
     "webpack": "^2.2.1"
   }
