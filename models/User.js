@@ -29,7 +29,7 @@ const userSchema = new Schema({
     default: false
   },
   hearts: {
-    type: [{ type: mongoose.Schema.ObjectId, ref: 'Store' }]
+    type: [{ type: mongoose.Schema.ObjectId, ref: 'Store' }],
   }
 });
 

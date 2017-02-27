@@ -2,6 +2,7 @@ import axios from 'axios';
 
 function ajaxHeart(e) {
   e.preventDefault();
+  console.log('Goin!');
   axios
     .post(this.action)
     .then(res => {
@@ -14,7 +15,8 @@ function ajaxHeart(e) {
 
       // update the hearts HTML
       document.querySelector('.heart-count').textContent = res.data.hearts.length;
-    });
+    })
+    .catch(console.error)
 }
 
 export default ajaxHeart;

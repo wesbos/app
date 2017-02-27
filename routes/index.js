@@ -9,24 +9,31 @@ const reviewController = require('../controllers/reviewController');
 const auth = require('../services/passport');
 const mail = require('../services/mail');
 
+// const catchErrors = fn => (req, res, next) => fn(req, res, next).catch(next)
+
+function catchErrors(fn) {
+  return function(req, res, next) {
+    return fn(req, res, next).catch(next);
+  }
+}
 
 /* Home Page */
 router.get('/', storeController.getStores);
 router.get('/stores', storeController.getStores);
 router.get('/stores/page/:page', storeController.getStores);
 
-router.get('/stores/:slug', storeController.getStoreBySlug);
+router.get('/stores/:slug', catchErrors(storeController.getStoreBySlug));
 /* TODO: Must own store before editing */
-router.get('/stores/:id/edit', storeController.editStore);
+router.get('/stores/:id/edit', catchErrors(storeController.editStore));
 router.get('/map', storeController.mapPage);
-router.get('/tags', storeController.getStoresByTag);
+router.get('/tags', catchErrors(storeController.getStoresByTag));
 router.get('/tags/:tag', storeController.getStoresByTag);
-router.get('/top', storeController.getTopStores);
+router.get('/top', catchErrors(storeController.getTopStores));
 router.get('/hearts', storeController.getHearts);
 
 router.get('/add', isLoggedIn, storeController.addStore);
 router.post('/add', isLoggedIn, storeController.upload, storeController.createStore);
-router.post('/add/:id', storeController.upload, storeController.updateStore);
+router.post('/add/:id', storeController.upload, catchErrors(storeController.updateStore));
 
 /*
   API
@@ -66,10 +73,10 @@ router.get('/fake/email', (req, res) => {
 */
 
 /* Hearting */
-router.post('/api/stores/:id/heart', isLoggedIn, storeController.heartStore);
+router.post('/api/stores/:id/heart', isLoggedIn, catchErrors(storeController.heartStore));
 
 /* Get the Stores */
-router.get('/api/stores/near/', storeController.mapStores);
+router.get('/api/stores/near/', catchErrors(storeController.mapStores));
 
 /* Search */
 router.get('/api/search/', storeController.searchStores);
