@@ -8,11 +8,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const promisify = require('es6-promisify');
 const flash = require('connect-flash');
 const expressValidator = require('express-validator');
 const routes = require('./routes/index');
 const helpers = require('./helpers');
 const config = require('./config');
+const errorHandlers = require('./services/errorHandlers');
 // create our Express app
 const app = express();
 
@@ -58,46 +60,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// promisify some callback based APIs
+app.use((req, res, next) => {
+  req.login = promisify(req.login, req);
+  next();
+});
+
+
 app.use('/', routes);
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+app.use(errorHandlers.notFound);
 
-/*
- Development Error Handler - Prints stack trace
-*/
+app.use(errorHandlers.displayFlashes);
+
 if (app.get('env') === 'development') {
-  // if we don't handle an error in our controller, it will be passed along to this.
-  app.use((err, req, res, next) => {
-    err.stack = err.stack || '';
-    const errorDetails = {
-      message: err.message,
-      status: err.status,
-      stackHighlighted: err.stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>')
-    };
-    res.status(err.status || 500);
-    res.format({
-      // Based on the `Accept` http header
-      'text/html': () => {
-        res.render('error', errorDetails);
-      }, // Form Submit, Reload the page
-      'application/json': () => res.json(errorDetails) // Ajax call, send JSON back
-    });
-  });
+  /* Development Error Handler - Prints stack trace */
+  app.use(errorHandlers.developmentErrors);
 }
 
 // production error handler
-// no stacktraces leaked to user
-app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
-});
+app.use(errorHandlers.developmentErrors);
 
 module.exports = app;

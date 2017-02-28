@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 
 require('../services/passport');
+const passport = require('passport');
+const promisify = require('es6-promisify');
 
 exports.logout = (req, res) => {
   req.logout();
@@ -36,66 +38,39 @@ exports.validateRegister = (req, res, next) => {
   next();
 };
 
-exports.register = (req, res, next) => {
-  const newUser = new User(req.body);
-  newUser
-    .save()
-    .then((user) => {
-      // 3. Success - now we do a few things
-      // 3.2 log them in
-      req.login(user, (err) => {
-        if (err) throw Error(err);
-        // 3.1 Tell them it worked!
-        req.flash('success', 'Account Created! You are now signed in!');
-        res.redirect('/');
-      });
-    })
-    .catch((err) => {
-      req.flash('error', err.message);
-      res.render('register', { title: 'Register', flashes: req.flash(), body: req.body });
-      return;
-      // TODO Check
-
-      // loop over all possible validation errors and re-render the register page
-      Object.keys(err.errors).forEach(key => {
-        req.flash('error', err.errors[key].message);
-      });
-      res.render('register', { title: 'Register', flashes: req.flash(), body: req.body });
-      // console.error(err);
-    });
+exports.register = async (req, res, next) => {
+  const user = new User({ email : req.body.email, name: req.body.name });
+  const register = promisify(User.register, User);
+  const account = await register(user, req.body.password);
+  next();  // pass to authController.login()
 };
 
 exports.account = (req, res) => {
   res.render('account', { user: req.user });
 };
 
-exports.updateAccount = (req, res) => {
+exports.updateAccount = async (req, res) => {
+
   const updates = {
     name: req.body.name,
     email: req.body.email
   };
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { $set: updates },
+    // new variable returns the updated document, not the old one!
+    // run validators will ensure you aren't updating to bad data
+    // context is required from mongoose
+    { new: true, runValidators: true, context: 'query' }
+  ); // maybe needs .exec() ?
 
-  User
-    .findOneAndUpdate(
-      { _id: req.user._id },
-      { $set: updates },
-      // new variable returns the updated document, not the old one!
-      { new: true, runValidators: true }
-    )
-    .exec()
-    .then(user => {
-      req.flash('success', `Successfully updated ${user.name}`);
-      // re -sign them in - forces a re-serialize
-      req.login(user, () => {
-        res.redirect('/account');
-      });
-    })
-    .catch(err => {
-      if (err.errors) {
-        const errorKeys = Object.keys(err.errors);
-        errorKeys.forEach(key => req.flash('error', err.errors[key].message));
-        res.redirect('/account');
-      }
-      console.log(err);
-    });
+  console.log('Updated User!');
+  console.log(user);
+
+  req.flash('success', `Successfully updated ${user.name}`);
+
+  // re-log them in so you can serialize the user
+  await req.login(user);
+  res.redirect('/account');
+
 };

@@ -1,45 +1,45 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const crypto = require('crypto'); // built in!
+const crypto = require('crypto');
+const passport = require('passport');
 const mail = require('../services/mail');
-/*
-  1. Forgot My Password
-*/
-exports.forgot = (req, res, next) => {
-  // First we find a user with that email
-  const email = req.body.email.toLowerCase().trim();
-  User
-    // 1. Find them
-    .findOne({ email })
-    // 2. Make Set their reset tokens
-    .then(user => {
-      if (!user) {
-        req.flash('error', 'No account with that email address exists.');
-        return res.redirect('/login');
-      }
-      user.resetPasswordToken = crypto.randomBytes(20).toString('hex');
-      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-      return user.save();
-    })
-    // 3. Send them their password Reset Email
-    .then(user => {
-      const resetURL = `http://${req.headers.host}/account/reset/${user.resetPasswordToken}`;
+const promisify = require('es6-promisify');
 
-      mail.send({
-        user,
-        file: 'password-reset',
-        resetURL,
-        subject: 'Password Reset'
-      });
-    })
-    // Tell them it worked!
-    .then(() => {
-      req.flash('success', 'You have been emailed a password reset link.');
-      res.redirect('/login');
-    })
-    .catch(err => {
-      next(err); // let express handle the error
-    });
+exports.login = passport.authenticate('local', {
+  failureRedirect: '/login',
+  successRedirect: '/',
+  failureFlash: 'Failed Login',
+  successFlash: 'You are now logged in!',
+});
+
+/*
+  1. Forgot My Password Flow
+*/
+exports.forgot = async (req, res, next) => {
+  // 1. see if user exists
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    req.flash('error', 'No account with that email address exists.');
+    return res.redirect('/login');
+  }
+
+  // 2. Set their reset tokens
+  user.resetPasswordToken = crypto.randomBytes(20).toString('hex');
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  await user.save();
+
+  // 3. Send them their password Reset Email
+  await mail.send({
+    user,
+    file: 'password-reset',
+    resetURL: `http://${req.headers.host}/account/reset/${user.resetPasswordToken}`,
+    subject: 'Password Reset'
+  });
+
+  req.flash('success', 'You have been emailed a password reset link.');
+  res.redirect('/login');
+
 };
 
 /*
@@ -73,35 +73,24 @@ exports.confirmedPassword = (req, res, next) => {
   res.redirect('back');
 };
 
-exports.update = (req, res, next) => {
-  User
-    .findOne({
-      resetPasswordToken: req.params.token, // token exists
-      resetPasswordExpires: { $gt: Date.now() } // it's not an expired token
-    })
-    .then(user => {
-      // check if it exists
-      if (!user) {
-        req.flash('error', 'Invalid or Expired Token');
-        return res.redirect('back');
-      }
-      return user;
-    })
-    .then(user => {
-      user.password = req.body.password;
-      // delete these fields
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-      return user.save();
-    })
-    .then(user => {
-      req.login(user, (err) => {
-        if (err) throw Error('Error Logging in');
-        req.flash('success', '💃 Nice! Your password has been reset and you are now logged in');
-        res.redirect('/');
-      });
-    })
-    .catch(err => next(err));
+exports.update = async (req, res, next) => {
+  const user = await User.findOne({
+    resetPasswordToken: req.params.token, // token exists
+    resetPasswordExpires: { $gt: Date.now() } // it's not an expired token
+  });
+
+  if (!user) {
+    req.flash('error', 'Invalid or Expired Token');
+    return res.redirect('back');
+  }
+
+  await promisify(user.setPassword, user)(req.body.password);
+  user.resetPasswordExpires = undefined;
+  user.resetPasswordToken = undefined;
+  const updatedUser = await user.save();
+  await req.login(updatedUser);
+  req.flash('success', '💃 Nice! Your password has been reset and you are now logged in');
+  res.redirect('/');
 };
 
 exports.isLoggedIn = (req, res, next) => {

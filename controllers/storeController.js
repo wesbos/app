@@ -42,27 +42,26 @@ exports.addStore = (req, res) => {
 };
 
 exports.getStores = async (req, res, next) => {
-  try {
-    const page = req.params.page || 1;
-    const limit = 6;
-    const skip = (page * limit) - limit;
+  const page = req.params.page || 1;
+  const limit = 6;
+  const skip = (page * limit) - limit;
 
-    const storePromise = Store
-      .find()
-      .skip(skip)
-      .limit(limit)
-      .populate('author reviews')
-      .sort({ created: 'desc' });
+  const storePromise = Store
+    .find()
+    .skip(skip)
+    .limit(limit)
+    .populate('author reviews')
+    .sort({ created: 'desc' });
 
-    const countPromise = Store.count();
-    const [stores, count] = await Promise.all([storePromise, countPromise]);
-    const pages = Math.ceil(count / limit);
-    res.render('stores', { stores, title: 'Latest Stores', count, page, pages });
-  } catch(err) {
-    console.log('eRRRRR!!');
-    console.log(err);
-    next(err);
+  const countPromise = Store.count();
+  const [stores, count] = await Promise.all([storePromise, countPromise]);
+  const pages = Math.ceil(count / limit);
+  if(!stores.length) {
+    req.flash('info', `HEY - there a page ${page}. I put ya on page ${pages}`);
+    res.redirect(`/stores/page/${pages}`);
+    return;
   }
+  res.render('stores', { stores, title: 'Latest Stores', count, page, pages });
 };
 
 
@@ -173,33 +172,26 @@ exports.heartStore = async (req, res, next) => {
   res.json(user);
 };
 
-exports.getHearts = (req, res, next) => {
-  Store
+exports.getHearts = async (req, res, next) => {
+  const stores = await Store
     .find({
       _id: { $in: req.user.hearts }
     })
-    .populate('author reviews')
-    .then(stores => {
-      res.render('stores', {
-        stores,
-        title: 'Hearted Stores'
-      });
-    })
-    .catch(err => next(err));
+    .populate('author reviews');
+
+  res.render('stores', { stores, title: 'Hearted Stores' });
 };
 
-exports.searchStores = (req, res, next) => {
-  console.log(req.query.q);
-  Store
-      .find({ $text: {
-        $search: req.query.q
-      } },
-        { score: { $meta: 'textScore' } }
-      )
-      .sort({ score: { $meta: 'textScore' } })
-      .limit(5)
-      .then(stores => {
-        res.json(stores);
-      })
-      .catch(err => next(err));
+exports.searchStores = async (req, res, next) => {
+
+  const stores = await Store
+    .find({ $text: {
+      $search: req.query.q
+    } },
+      { score: { $meta: 'textScore' } }
+    )
+    .sort({ score: { $meta: 'textScore' } })
+    .limit(5);
+
+    res.json(stores);
 };
