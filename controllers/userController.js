@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-
-require('../services/passport');
-const passport = require('passport');
 const promisify = require('es6-promisify');
 
 exports.logout = (req, res) => {
@@ -39,18 +36,17 @@ exports.validateRegister = (req, res, next) => {
 };
 
 exports.register = async (req, res, next) => {
-  const user = new User({ email : req.body.email, name: req.body.name });
+  const user = new User({ email: req.body.email, name: req.body.name });
   const register = promisify(User.register, User);
-  const account = await register(user, req.body.password);
+  await register(user, req.body.password);
   next();  // pass to authController.login()
 };
 
 exports.account = (req, res) => {
-  res.render('account', { user: req.user });
+  res.render('account', { user: req.user, title: 'Manage My Account' });
 };
 
 exports.updateAccount = async (req, res) => {
-
   const updates = {
     name: req.body.name,
     email: req.body.email
@@ -72,5 +68,4 @@ exports.updateAccount = async (req, res) => {
   // re-log them in so you can serialize the user
   await req.login(user);
   res.redirect('/account');
-
 };

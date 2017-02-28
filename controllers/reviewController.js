@@ -17,7 +17,7 @@ exports.addReview = async (req, res) => {
     rating: req.body.rating,
   });
 
-  const revivew = await newReview.save();
+  await newReview.save();
   res.redirect('back');
 };
 

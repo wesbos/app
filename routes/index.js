@@ -18,7 +18,7 @@ router.get('/tags/:tag', storeController.getStoresByTag);
 router.get('/top', catchErrors(storeController.getTopStores));
 router.get('/hearts', catchErrors(storeController.getHearts));
 router.get('/add', isLoggedIn, storeController.addStore);
-router.post('/add', isLoggedIn, storeController.upload, storeController.createStore);
+router.post('/add', isLoggedIn, storeController.upload, catchErrors(storeController.createStore));
 router.post('/add/:id', storeController.upload, catchErrors(storeController.updateStore));
 
 /* User Login  */

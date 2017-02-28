@@ -21,7 +21,7 @@ exports.notFound = (req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
   next(err);
-}
+};
 
 /*
   MongoDB Validation Error Handler
@@ -35,7 +35,7 @@ exports.displayFlashes = (err, req, res, next) => {
   const errorKeys = Object.keys(err.errors);
   errorKeys.forEach(key => req.flash('error', err.errors[key].message));
   res.redirect('back');
-}
+};
 
 
 /*
@@ -72,4 +72,4 @@ exports.productionErrors = (err, req, res, next) => {
     message: err.message,
     error: {}
   });
-}
+};

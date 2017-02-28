@@ -56,7 +56,7 @@ exports.getStores = async (req, res, next) => {
   const countPromise = Store.count();
   const [stores, count] = await Promise.all([storePromise, countPromise]);
   const pages = Math.ceil(count / limit);
-  if(!stores.length) {
+  if (!stores.length) {
     req.flash('info', `HEY - there a page ${page}. I put ya on page ${pages}`);
     res.redirect(`/stores/page/${pages}`);
     return;
@@ -72,10 +72,10 @@ exports.getStoreBySlug = async (req, res, next) => {
 };
 
 const confirmOwner = (store, user) => {
-  if(!store.author.equals(user._id)) {
+  if (!store.author.equals(user._id)) {
     throw Error('You must own a store in order to edit it!');
   }
-}
+};
 
 exports.editStore = async (req, res, next) => {
   const store = await Store.findOne({ _id: req.params.id });
@@ -84,27 +84,14 @@ exports.editStore = async (req, res, next) => {
 };
 
 exports.createStore = async (req, res, next) => {
-  // here we want to catch the error ourselves
-  try {
-    // TODO: check for file validation error
-    req.body.author = req.user._id;
-    req.body.photo = req.file && req.file.filename;
-    const store = await (new Store(req.body)).save();
-    req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
-    res.redirect(`/stores/${store.slug}`);
-  } catch(err) {
-    if (err.errors) {
-      Object.keys(err.errors).forEach(key => req.flash('error', err.errors[key].message));
-      res.render('editStore', { store: req.body, flashes: req.flash() });
-      return;
-    }
-    // otherwise pass it on
-    next(err);
-  }
+  req.body.author = req.user._id;
+  req.body.photo = req.file && req.file.filename;
+  const store = await (new Store(req.body)).save();
+  req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
+  res.redirect(`/stores/${store.slug}`);
 };
 
 exports.updateStore = async (req, res) => {
-
   if (req.file && req.file.filename) {
     req.body.photo = req.file.filename;
   }
@@ -155,7 +142,7 @@ exports.getStoresByTag = async (req, res, next) => {
 
 exports.getTopStores = async (req, res, next) => {
   const stores = await Store.getTopStores(req.params.tag);
-  res.render('topStores', { stores, title: '⭐ Top Stores' })
+  res.render('topStores', { stores, title: '⭐ Top Stores' });
 };
 
 exports.heartStore = async (req, res, next) => {
@@ -173,17 +160,15 @@ exports.heartStore = async (req, res, next) => {
 };
 
 exports.getHearts = async (req, res, next) => {
-  const stores = await Store
-    .find({
-      _id: { $in: req.user.hearts }
-    })
-    .populate('author reviews');
+  const stores = await Store.find({
+    _id: { $in: req.user.hearts }
+  })
+  .populate('author reviews');
 
   res.render('stores', { stores, title: 'Hearted Stores' });
 };
 
 exports.searchStores = async (req, res, next) => {
-
   const stores = await Store
     .find({ $text: {
       $search: req.query.q
@@ -193,5 +178,5 @@ exports.searchStores = async (req, res, next) => {
     .sort({ score: { $meta: 'textScore' } })
     .limit(5);
 
-    res.json(stores);
+  res.json(stores);
 };

@@ -1,6 +1,5 @@
 // pull in passport libs
 const passport = require('passport');
-const LocalStrategy = require('passport-local');
 // user model
 const mongoose = require('mongoose');
 const User = mongoose.model('User');

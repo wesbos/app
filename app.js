@@ -15,6 +15,7 @@ const routes = require('./routes/index');
 const helpers = require('./helpers');
 const config = require('./config');
 const errorHandlers = require('./services/errorHandlers');
+require('./services/passport');
 // create our Express app
 const app = express();
 
@@ -45,6 +46,7 @@ app.use(session({
   saveUninitialized: false,
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
