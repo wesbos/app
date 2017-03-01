@@ -26,7 +26,7 @@ mongoose.connection.on('error', (err) => {
   console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
 });
 
-mongoose.Promise = global.Promise; // only once because it's a singleton
+mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
 // mongoose.set('debug', true);
 
 // view engine setup
