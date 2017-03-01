@@ -1,9 +1,7 @@
 const express = require('express');
 const session = require('express-session');
-const fs = require('fs');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
-fs.readdirSync('./models').forEach(file => require(`./models/${file}`)); // eslint-disable-line
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -14,20 +12,10 @@ const expressValidator = require('express-validator');
 const routes = require('./routes/index');
 const helpers = require('./helpers');
 const config = require('./config');
-const errorHandlers = require('./services/errorHandlers');
-require('./services/passport');
+const errorHandlers = require('./handlers/errorHandlers');
+require('./handlers/passport');
 // create our Express app
 const app = express();
-
-// DB Connect
-mongoose.connect(config.database);
-// If the connection is bad, let the dev know
-mongoose.connection.on('error', (err) => {
-  console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
-});
-
-mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
-// mongoose.set('debug', true);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -82,6 +70,6 @@ if (app.get('env') === 'development') {
 }
 
 // production error handler
-app.use(errorHandlers.developmentErrors);
+app.use(errorHandlers.productionErrors);
 
 module.exports = app;

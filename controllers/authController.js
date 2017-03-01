@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const crypto = require('crypto');
 const passport = require('passport');
-const mail = require('../services/mail');
+const mail = require('../handlers/mail');
 const promisify = require('es6-promisify');
 
 exports.login = passport.authenticate('local', {

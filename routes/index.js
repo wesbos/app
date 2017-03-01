@@ -5,7 +5,7 @@ const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
 const isLoggedIn = authController.isLoggedIn;
 const reviewController = require('../controllers/reviewController');
-const { catchErrors } = require('../services/errorHandlers');
+const { catchErrors } = require('../handlers/errorHandlers');
 
 router.get('/', catchErrors(storeController.getStores));
 router.get('/stores', catchErrors(storeController.getStores));

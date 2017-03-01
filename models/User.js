@@ -3,7 +3,7 @@ mongoose.Promise = global.Promise;
 const md5 = require('md5');
 const Schema = mongoose.Schema;
 const validator = require('validator');
-const mongodbErrorHandler = require('mongoose-mongodb-errors')
+const mongodbErrorHandler = require('mongoose-mongodb-errors');
 const passportLocalMongoose = require('passport-local-mongoose');
 
 // Define our model
