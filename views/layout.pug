@@ -17,7 +17,9 @@ html
                   != h.icon(item.icon)
                   span #{item.title}
           .nav__section.nav__section--search
-            include partials/_search
+            .search
+              input.search__input(type="text" placeholder="Coffee, beer..." name="search")
+              .search__results
           .nav__section.nav__section--user
             if user
               li.nav__item: a.nav__link(href="/hearts", class=(currentPath.startsWith('/hearts') ? 'nav__link--active' : ''))
