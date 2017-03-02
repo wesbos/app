@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title= `${title} | ${config.siteName}`
+    title= `${title} | ${h.siteName}`
     link(rel='stylesheet', href='/dist/style.css')
   body
     block header
@@ -11,7 +11,7 @@ html
             li.nav__item
               a.nav__link.nav__link--logo(href="/")
                 != h.icon('logo')
-            each item in config.menu
+            each item in h.menu
               li.nav__item
                 a.nav__link(href=item.slug, class=(currentPath.startsWith(item.slug) ? 'nav__link--active' : ''))
                   != h.icon(item.icon)
@@ -45,5 +45,5 @@ html
       block content
 
     block scripts
-      script(src=`https://maps.googleapis.com/maps/api/js?key=${config.mapKey}&libraries=places`)
+      script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_KEY}&libraries=places`)
       script(src="/dist/App.bundle.js")

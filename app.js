@@ -11,7 +11,6 @@ const flash = require('connect-flash');
 const expressValidator = require('express-validator');
 const routes = require('./routes/index');
 const helpers = require('./helpers');
-const config = require('./config');
 const errorHandlers = require('./handlers/errorHandlers');
 require('./handlers/passport');
 // create our Express app
@@ -28,8 +27,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-  secret: config.secret,
-  key: config.key,
+  secret: process.env.SECRET,
+  key: process.env.KEY,
   resave: false,
   saveUninitialized: false,
   store: new MongoStore({ mongooseConnection: mongoose.connection })
@@ -46,7 +45,6 @@ app.use((req, res, next) => {
   res.locals.flashes = req.flash();
   res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
-  res.locals.config = config;
   next();
 });
 
@@ -56,7 +54,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
+// insert our routes here
 app.use('/', routes);
 
 // catch 404 and forward to error handler

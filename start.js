@@ -9,8 +9,6 @@ require('dotenv').config({ path: 'variables.env' });
 
 // require dependencies
 const mongoose = require('mongoose');
-const config = require('./config');
-const fs = require('fs');
 
 // import all of our models - they need to be imported only once
 require('./models/Store');
@@ -18,7 +16,7 @@ require('./models/Review');
 require('./models/User');
 
 // Connect to our Database and handle an bad connections
-mongoose.connect(config.database);
+mongoose.connect(process.env.DATABASE);
 mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
 mongoose.connection.on('error', (err) => {
   console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
