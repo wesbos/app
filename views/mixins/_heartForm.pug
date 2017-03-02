@@ -1,6 +1,0 @@
-mixin heartForm(store, user)
-  form.heart(method="POST" action=`/api/stores/${store._id}/heart`)
-    - const heartStrings = user.hearts.map(store => store.toString())
-    - const heartClass =  heartStrings.includes(store._id.toString()) ? 'heart__button--hearted' : ''
-    button.heart__button(type='submit' class=heartClass name="heart")
-      include ../../public/images/icons/heart.svg
