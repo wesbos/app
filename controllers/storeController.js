@@ -1,34 +1,38 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
 const User = mongoose.model('User');
-
+const sharp = require('sharp');
 const multer = require('multer');
 const uuid = require('uuid');
 
-const storage = multer.diskStorage({
-  destination(req, file, next) {
-    next(null, './public/uploads');
-  },
-  filename(req, file, next) {
-    console.log(file);
-    next(null, `${uuid.v4()}-${file.originalname}`);
-  }
-});
-
 const multerOptions = {
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter(req, file, cb) {
-    // TODO only allow jpg and png
-    const isPhoto = file.mimetype.match('image/*');
+    const isPhoto = file.mimetype.startsWith('image/*');
     if (isPhoto) {
       cb(null, true);
     } else {
-      return cb('That filetype isn\'t allowed!', false);
+      return cb({message: 'That filetype isn\'t allowed!'}, false);
     }
   }
 };
 
 exports.upload = multer(multerOptions).single('photo');
+
+exports.resize = async (req, res, next) => {
+  const extension = req.file.mimetype.split('/')[1];
+  req.file.fileName = `${uuid.v4()}.${extension}`;
+  const photo = await sharp(req.file.buffer).resize(800).toFile(`./public/uploads/${req.file.fileName}`);
+  next();
+};
+
+exports.createStore = async (req, res, next) => {
+  req.body.author = req.user._id;
+  req.body.photo = req.file && req.file.fileName;
+  const store = await (new Store(req.body)).save();
+  req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
+  res.redirect(`/stores/${store.slug}`);
+};
 
 exports.homePage = (req, res) => {
   res.render('index');
@@ -81,14 +85,6 @@ exports.editStore = async (req, res, next) => {
   const store = await Store.findOne({ _id: req.params.id });
   confirmOwner(store, req.user); // check if they are an owner
   res.render('editStore', { store, title: 'Edit Store' });
-};
-
-exports.createStore = async (req, res, next) => {
-  req.body.author = req.user._id;
-  req.body.photo = req.file && req.file.filename;
-  const store = await (new Store(req.body)).save();
-  req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
-  res.redirect(`/stores/${store.slug}`);
 };
 
 exports.updateStore = async (req, res) => {

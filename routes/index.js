@@ -18,11 +18,24 @@ router.get('/tags/:tag', storeController.getStoresByTag);
 router.get('/top', catchErrors(storeController.getTopStores));
 router.get('/hearts', catchErrors(storeController.getHearts));
 router.get('/add', isLoggedIn, storeController.addStore);
-router.post('/add', isLoggedIn, storeController.upload, catchErrors(storeController.createStore));
-router.post('/add/:id', storeController.upload, catchErrors(storeController.updateStore));
+router.post(
+  '/add',
+  isLoggedIn,
+  storeController.upload,
+  catchErrors(storeController.resize),
+  catchErrors(storeController.createStore)
+);
+router.post(
+  '/add/:id',
+  storeController.upload,
+  catchErrors(storeController.updateStore)
+);
 
 /* User Login  */
-router.get('/login', userController.loginForm);  /* TODO: Should this be in an auth controller? */
+router.get(
+  '/login',
+  userController.loginForm
+); /* TODO: Should this be in an auth controller? */
 router.post('/login', authController.login);
 router.get('/logout', userController.logout);
 
@@ -31,21 +44,40 @@ router.get('/account', isLoggedIn, userController.account);
 router.post('/account', isLoggedIn, catchErrors(userController.updateAccount));
 router.post('/account/forgot', catchErrors(authController.forgot));
 router.get('/account/reset/:token', authController.reset);
-router.post('/account/reset/:token', authController.confirmedPassword, catchErrors(authController.update));
+router.post(
+  '/account/reset/:token',
+  authController.confirmedPassword,
+  catchErrors(authController.update)
+);
 
 /* User Registration */
-router.post('/register', userController.validateRegister, catchErrors(userController.register), authController.login);
-router.get('/register', (req, res) => { res.render('register', { title: 'Register' }); });
+router.post(
+  '/register',
+  userController.validateRegister,
+  catchErrors(userController.register),
+  authController.login
+);
+router.get('/register', (req, res) => {
+  res.render('register', { title: 'Register' });
+});
 
 /* Reviews */
-router.post('/reviews/:id', isLoggedIn, catchErrors(reviewController.addReview));
+router.post(
+  '/reviews/:id',
+  isLoggedIn,
+  catchErrors(reviewController.addReview)
+);
 
 /*
   The API
 */
 
 /* Hearting */
-router.post('/api/stores/:id/heart', isLoggedIn, catchErrors(storeController.heartStore));
+router.post(
+  '/api/stores/:id/heart',
+  isLoggedIn,
+  catchErrors(storeController.heartStore)
+);
 
 /* Get the Stores */
 router.get('/api/stores/near/', catchErrors(storeController.mapStores));

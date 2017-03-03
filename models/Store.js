@@ -110,7 +110,6 @@ storeSchema.pre('save', function(next) {
   }
 
   // if it has, update the slug
-  console.log('updating slug');
   this.slug = slug(this.name);
   next();
   // TODO: Make slug unique
