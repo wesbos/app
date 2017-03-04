@@ -48,7 +48,7 @@ exports.addStore = (req, res) => {
 exports.getStores = async (req, res, next) => {
   const page = req.params.page || 1;
   const limit = 6;
-  const skip = (page * limit) - limit;
+  const skip = Math.max((page * limit) - limit, 0);
 
   const storePromise = Store
     .find()
@@ -60,8 +60,8 @@ exports.getStores = async (req, res, next) => {
   const countPromise = Store.count();
   const [stores, count] = await Promise.all([storePromise, countPromise]);
   const pages = Math.ceil(count / limit);
-  if (!stores.length) {
-    req.flash('info', `HEY - there a page ${page}. I put ya on page ${pages}`);
+  if (!stores.length && skip) {
+    req.flash('info', `HEY - you asked for page ${page}. I put ya on page ${pages}`);
     res.redirect(`/stores/page/${pages}`);
     return;
   }
