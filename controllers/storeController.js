@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
 const User = mongoose.model('User');
-const sharp = require('sharp');
+const jimp = require('jimp');
 const multer = require('multer');
 const uuid = require('uuid');
 
 const multerOptions = {
   storage: multer.memoryStorage(),
   fileFilter(req, file, cb) {
-    const isPhoto = file.mimetype.startsWith('image/*');
+    const isPhoto = file.mimetype.startsWith('image/');
     if (isPhoto) {
       cb(null, true);
     } else {
@@ -20,9 +20,16 @@ const multerOptions = {
 exports.upload = multer(multerOptions).single('photo');
 
 exports.resize = async (req, res, next) => {
+  // if there is no file, skip this
+  if (!req.file) {
+    next();
+    return;
+  }
   const extension = req.file.mimetype.split('/')[1];
   req.file.fileName = `${uuid.v4()}.${extension}`;
-  const photo = await sharp(req.file.buffer).resize(800).toFile(`./public/uploads/${req.file.fileName}`);
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.file.fileName}`);
   next();
 };
 
