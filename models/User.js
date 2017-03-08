@@ -16,7 +16,6 @@ const userSchema = new Schema({
     validate: [validator.isEmail, 'Invalid Email Address'],
     required: 'Please supply an email address'
   },
-  password: { type: String, select: false }, // select will stop the password from being returned unless we explicitly ask for it
   name: {
     type: String,
     required: 'You must supply a name',
@@ -24,10 +23,6 @@ const userSchema = new Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  admin: {
-    type: Boolean,
-    default: false
-  },
   hearts: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'Store' }],
   }
