@@ -34,7 +34,8 @@
     }
   }
   &__author {
-    // margin-left: 1rem;
+    justify-content: flex-start;
+    padding-left:  2rem;
     display: flex;
     .avatar {
       margin-right: 2rem;
@@ -45,7 +46,7 @@
     color: lighten(black, 60%);
   }
   &__stars {
-    color: $black;
+    color: $yellow;
   }
   &__body {
     padding: 2rem;

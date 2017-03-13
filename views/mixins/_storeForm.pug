@@ -10,7 +10,6 @@ mixin storeForm(store = {})
     input(class="controls" type="text" id="lng" name="location[coordinates][0]" value=(store.location && store.location.coordinates[0]) required)
     label(for="lng") Address Lat
     input(class="controls" type="text" id="lat" name="location[coordinates][1]" value=(store.location && store.location.coordinates[1]) required)
-
     label(for="photo") Photo
       input(type="file" name="photo" id="photo" accept="image/gif, image/png, image/jpeg")
       if store.photo

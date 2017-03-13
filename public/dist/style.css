@@ -592,9 +592,6 @@ label {
   .flash p {
     margin: 0; }
 
-.flash-messages {
-  margin-top: 2rem; }
-
 .nav {
   display: -ms-flexbox;
   display: flex;
@@ -722,7 +719,8 @@ label {
   .store__details {
     padding: 2rem; }
     .store__details p {
-      line-height: 1.2; }
+      line-height: 1.2;
+      margin-bottom: 0; }
   @media all and (max-width: 850px) {
     .store {
       width: 48%; } }
@@ -965,6 +963,9 @@ label {
       .review__header > *:last-child {
         border-right: 0; }
   .review__author {
+    -ms-flex-pack: start;
+        justify-content: flex-start;
+    padding-left: 2rem;
     display: -ms-flexbox;
     display: flex; }
     .review__author .avatar {
@@ -973,7 +974,7 @@ label {
     font-size: 1.2rem;
     color: #999999; }
   .review__stars {
-    color: #303030; }
+    color: #FFC40E; }
   .review__body {
     padding: 2rem; }
   .review p {

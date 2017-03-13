@@ -2,7 +2,7 @@ mixin review(review)
   if review.author
     .review__header
       .review__author
-        img.avatar(src=review.author.gravatar)
+        img.avatar(src=`${review.author.gravatar}&d=404`, onerror=`this.src = 'http://i.pravatar.cc/300?u=x-${review.author._id}'`)
         p #{review.author.name}
       .review__stars(title=`Rated ${review.rating} out of 5 stars`)
         = `★`.repeat(review.rating)

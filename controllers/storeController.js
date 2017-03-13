@@ -12,7 +12,7 @@ const multerOptions = {
     if (isPhoto) {
       cb(null, true);
     } else {
-      return cb({message: 'That filetype isn\'t allowed!'}, false);
+      return cb({ message: 'That filetype isn\'t allowed!' }, false);
     }
   }
 };
@@ -26,16 +26,16 @@ exports.resize = async (req, res, next) => {
     return;
   }
   const extension = req.file.mimetype.split('/')[1];
-  req.file.fileName = `${uuid.v4()}.${extension}`;
+  // req.file.fileName = `${uuid.v4()}.${extension}`;
+  req.body.photo = `${uuid.v4()}.${extension}`;
   const photo = await jimp.read(req.file.buffer);
   await photo.resize(800, jimp.AUTO);
-  await photo.write(`./public/uploads/${req.file.fileName}`);
+  await photo.write(`./public/uploads/${req.body.photo}`);
   next();
 };
 
 exports.createStore = async (req, res, next) => {
   req.body.author = req.user._id;
-  req.body.photo = req.file && req.file.fileName;
   const store = await (new Store(req.body)).save();
   req.flash('success', `Sucessfully Created ${store.name}! Care to leave a review?`);
   res.redirect(`/stores/${store.slug}`);
@@ -124,7 +124,7 @@ exports.mapStores = async (req, res) => {
     }
   };
 
-  const stores = await Store.find(q).limit(10);
+  const stores = await Store.find(q).select('-author -tags').limit(10);
   res.json(stores);
 };
 

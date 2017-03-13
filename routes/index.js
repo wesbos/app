@@ -25,9 +25,12 @@ router.post(
   catchErrors(storeController.resize),
   catchErrors(storeController.createStore)
 );
+
 router.post(
   '/add/:id',
+  isLoggedIn,
   storeController.upload,
+  catchErrors(storeController.resize),
   catchErrors(storeController.updateStore)
 );
 
