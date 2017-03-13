@@ -55,5 +55,8 @@
     float: right;
     position: relative;
     padding: 1rem;
+    @media all and (max-width: 850px) {
+      margin-right: 0;
+    }
   }
 }

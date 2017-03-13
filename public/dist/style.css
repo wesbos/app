@@ -687,7 +687,10 @@ label {
     .nav__link svg {
       max-width: 100%; }
     .nav__link--logo svg {
-      width: 100%; } }
+      width: 100%; }
+  .heart-count:before {
+    content: '\2665\FE0F';
+    margin-right: 1rem; } }
 
 .table {
   width: 100%; }
@@ -889,6 +892,9 @@ label {
   float: right;
   position: relative;
   padding: 1rem; }
+  @media all and (max-width: 850px) {
+    .single__location {
+      margin-right: 0; } }
 
 .heart__button {
   background: none;

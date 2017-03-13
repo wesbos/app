@@ -120,4 +120,8 @@
       }
     }
   }
+  .heart-count:before {
+    content: '♥️';
+    margin-right: 1rem;
+  }
 }
